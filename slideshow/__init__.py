@@ -106,7 +106,7 @@ def add_post():
         # Save image filename in post db and finalize
         post.name = filename
         post.save()
-        msg = "Successfully sent image :)"
+        msg = "Bild erfolgreich hochgeladen :)"
 
         socket.emit("new_image", {"filename": URL + filename, "comment": comment})
     except Exception as e:

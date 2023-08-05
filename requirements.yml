@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - eventlet=0.33.3
   - flask=2.2.2
   - flask-socketio=5.3.1
   - gunicorn=21.2.0
@@ -10,6 +11,6 @@ dependencies:
   - peewee=3.16.2
   - pillow=9.4.0
   - pip=23.1.2
-  - python=3.11.4
+  - python=3.11.0
   - pip:
       - simple-websocket==0.10.1
