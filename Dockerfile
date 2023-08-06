@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:22.11.1 as build
+FROM continuumio/miniconda3:23.5.2-0 as build
 
 USER root
 WORKDIR /root
@@ -6,7 +6,7 @@ WORKDIR /root
 # prepare conda environment
 ADD requirements.yml requirements.yml
 RUN conda env create -f requirements.yml
-RUN conda install conda-pack
+RUN conda install -c conda-forge conda-pack
 RUN conda-pack -n flask_image_gallery -o /tmp/env.tar --ignore-missing-files && \
     mkdir /venv \
     && cd /venv \
@@ -29,6 +29,8 @@ COPY --from=build /venv /venv
 ADD start.py start.py
 ADD slideshow slideshow
 ADD entrypoint.sh .
+
+RUN mkdir Pictures && cd Pictures && mkdir wedding
 
 RUN chmod 555 /root/entrypoint.sh
 
