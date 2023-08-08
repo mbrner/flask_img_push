@@ -32,6 +32,8 @@ ADD entrypoint.sh .
 
 RUN mkdir Pictures && cd Pictures && mkdir wedding
 
+RUN mkdir Database 
+
 RUN chmod 555 /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]
