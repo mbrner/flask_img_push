@@ -70,6 +70,6 @@ def get_rnd_db_entries(N=5):
     else:
         # No imgs added yet or eror, only show placeholder
         filenames = N * ["_placeholder_.jpg"]
-        comments = N * ["comment"]
+        comments = N * ["Unser Platzhalter ;)"]
 
     return filenames, comments

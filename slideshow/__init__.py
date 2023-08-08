@@ -29,6 +29,8 @@ app.config["IMG_DIR"] = os.getenv(
     "SLIDESHOW_IMG_DIR", os.path.join(os.getenv("HOME"), "Pictures", "wedding")
 )
 
+HOSTNAME = os.getenv("HOSTNAME", "wedding.local")
+
 
 # Init app before launch
 @app.before_first_request
@@ -47,7 +49,7 @@ def start_gallery_updater():
     t.start()
     print("Updated gallery", file=sys.stderr)
     filenames, _ = get_rnd_db_entries(N=4)
-    URL = "http://127.0.0.1:8000/images/"
+    URL = f"http://{HOSTNAME}:8000/images/"
     filenames = {i: URL + s for i, s in enumerate(filenames)}
     socket.emit(
         "update",
@@ -78,7 +80,7 @@ def gallery():
     """Gallery site, for displaying sent pictures and comments"""
     # Fetch 5 images from database
     filenames, comments = get_rnd_db_entries(N=5)
-    URL = "http://127.0.0.1:8000/images/"
+    URL = f"http://{HOSTNAME}:8000/images/"
     filenames = {i: URL + s for i, s in enumerate(filenames)}
     return render_template("gallery.html", filenames=filenames, comment=comments[2])
 
@@ -87,7 +89,7 @@ def gallery():
 @app.route("/posts", methods=["POST"])
 def add_post():
     # Fill post db entry
-    URL = "http://127.0.0.1:8000/images/"
+    URL = f"http://{HOSTNAME}:8000/images/"
     try:
         post = Post()
         post.timestamp = datetime.utcnow()
