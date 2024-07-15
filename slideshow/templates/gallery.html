@@ -10,17 +10,30 @@
     <!-- SocketIO client js -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
-        var socket = io('http://' + document.domain + ':' + location.port);
+        <!-- var socket = io('http://' + document.domain + ':' + location.port); -->
+        console.log("Setting up socket!");
+        var socket = io();
         socket.on("connect", function () { console.log("Gallery connected."); });
+        socket.on("connect_error", (error) => {
+            if(socket.active){}
+            else{
+                console.log(error.message);
+            }
+        });
         socket.on("new_image", function (data) {
+            console.log('New image received!', data);
             $("#img_main").attr("src", data.filename);
             $("#comment").text(data.comment);
         });
-        socket.on("update", function (data) {
+        socket.on("galupdate", function (data) {
+            console.log("Update event received:", data);
             $("#img_tl").attr("src", data.img_tl);
             $("#img_bl").attr("src", data.img_bl);
             $("#img_tr").attr("src", data.img_tr);
             $("#img_br").attr("src", data.img_br);
+        });
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
         });
     </script>
 </head>
@@ -29,9 +42,9 @@
 
     <div class="container gallery-container">
 
-        <h1>Hochzeitsgalerie</h1>
+        <h1>ウェディングギャラリー, Hochzeitsgalerie, Wedding gallery</h1>
         <p class="page-description text-center">
-            Postet Eure Bilder auf die Leinwand 🙃
+            キャンバスに写真を貼る, Postet Eure Bilder auf die Leinwand, post your photos to the screen 🙃
         </p>
 
         <!-- Nested grid layout for 2 left, 1 big centered and 2 right -->
@@ -69,6 +82,7 @@
         </div>
 
         <p id="comment" class="text-center comment">{{comment}}</p>
+
     </div>
 
 </body>
