@@ -17,6 +17,7 @@ from flask import (
 from flask_socketio import SocketIO
 from datetime import datetime
 import numpy as np
+import time
 
 from .database import database, Post, get_rnd_db_entries, get_max_id
 from .image import fix_orientation
@@ -29,7 +30,7 @@ app.config["IMG_DIR"] = os.getenv(
     "SLIDESHOW_IMG_DIR", os.path.join(os.getenv("HOME"), "Pictures", "wedding")
 )
 
-HOSTNAME = os.getenv("HOSTNAME", "wedding.local")
+HOSTNAME = os.getenv("HOSTNAME", "localhost")
 PORT = os.getenv("PORT", "8000")
 
 
@@ -40,27 +41,25 @@ def init_app():
     database.init(app.config["DATABASE"])
     database.create_tables([Post], safe=True)
     # Set the timer to push new random content to gallery
-    start_gallery_updater()
+    socket.start_background_task(start_gallery_updater)
 
 
 def start_gallery_updater():
-    """A self starting thread to update the gallery each T seconds."""
-    t = threading.Timer(15.0, start_gallery_updater)
-    t.daemon = True
-    t.start()
-    print("Updated gallery", file=sys.stderr)
-    filenames, _ = get_rnd_db_entries(N=4)
-    URL = f"http://{HOSTNAME}:{PORT}/images/"
-    filenames = {i: URL + s for i, s in enumerate(filenames)}
-    socket.emit(
-        "update",
-        {
-            "img_tl": filenames[0],
-            "img_bl": filenames[1],
-            "img_tr": filenames[2],
-            "img_br": filenames[3],
-        },
-    )
+    while True:
+        socket.sleep(15)
+        print("Updated gallery", file=sys.stderr)
+        filenames, _ = get_rnd_db_entries(N=4)
+        URL = f"http://{HOSTNAME}:{PORT}/images/"
+        filenames = {i: URL + s for i, s in enumerate(filenames)}
+        socket.emit(
+            "galupdate",
+            {
+                "img_tl": filenames[0],
+                "img_bl": filenames[1],
+                "img_tr": filenames[2],
+                "img_br": filenames[3],
+            }
+        )
 
 
 # Init flask SocketIO
@@ -111,6 +110,7 @@ def add_post():
         post.save()
         msg = "Bild erfolgreich hochgeladen :)"
 
+        print('Emitting new image')
         socket.emit("new_image", {"filename": URL + filename, "comment": comment})
     except Exception as e:
         msg = e
@@ -164,6 +164,14 @@ def db_show():
         s += "{}: {}".format(item.id, item.name) + "<br>"
 
     return s
+
+@socket.on('connect')
+def handle_connect():
+    print('Client connected!')
+
+@socket.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected!')
 
 
 # Start the server wrapper
