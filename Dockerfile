@@ -1,39 +1,23 @@
-FROM continuumio/miniconda3:23.5.2-0 as build
+FROM python:3.9-slim-bullseye
 
-USER root
+# Set working directory
 WORKDIR /root
 
-# prepare conda environment
-ADD requirements.yml requirements.yml
-RUN conda env create -f requirements.yml
-RUN conda install -c conda-forge conda-pack
-RUN conda-pack -n flask_image_gallery -o /tmp/env.tar --ignore-missing-files && \
-    mkdir /venv \
-    && cd /venv \
-    && tar xf /tmp/env.tar \
-    && rm /tmp/env.tar
-RUN /venv/bin/conda-unpack
+# Copy the requirements.txt file and install Python dependencies
+ADD requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-FROM debian:bullseye-20220801-slim as runtime
-
-USER root
-WORKDIR /root
-
-RUN apt-get update && apt-get upgrade -y 
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# copy virtual env and scripts
-COPY --from=build /venv /venv
-
+# Copy application files
 ADD start.py start.py
 ADD slideshow slideshow
-ADD entrypoint.sh .
+ADD entrypoint.sh entrypoint.sh
 
-RUN mkdir Pictures && cd Pictures && mkdir wedding
+# Create necessary directories
+RUN mkdir -p /root/Pictures/wedding /root/Database
+ENV SLIDESHOW_IMG_DIR=/root/Pictures/wedding
 
-RUN mkdir Database 
+# Make entrypoint script executable
+RUN chmod +x /root/entrypoint.sh
 
-RUN chmod 555 /root/entrypoint.sh
-
+# Set entrypoint
 ENTRYPOINT ["/root/entrypoint.sh"]

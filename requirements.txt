@@ -7,3 +7,4 @@ numpy==1.25.0
 peewee==3.16.2
 pillow==9.4.0
 simple-websocket==0.10.1
+flask_httpauth
