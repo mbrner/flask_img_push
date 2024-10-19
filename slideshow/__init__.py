@@ -180,8 +180,14 @@ def db_show():
 
 
 # SocketIO setup
-socket = SocketIO(app)
+from flask_socketio import SocketIO
+
+# Allow specific origins or set it to "*" to allow all origins
+socket = SocketIO(app, cors_allowed_origins="https://wedding.mathisboerner.de")
 
 # Start the server
 def start_server():
+    import eventlet
+    eventlet.monkey_patch()
     socket.run(app, host="0.0.0.0", port=8000, debug=True)
+
