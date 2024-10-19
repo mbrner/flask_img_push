@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  slideshow-app:
+    build: .
+    container_name: slideshow_app
+    env_file: 
+      - .env  # Load environment variables from the .env file
+    ports:
+      - "8000:8000"  # Expose the app on port 8000
+    volumes:
+      - ./images:/root/Pictures/wedding  # Mount host images folder to container's image directory
+      - ./db:/root/Database  # Mount host database folder to container's Database directory
+    restart: always  # Restart the container automatically if it crashes
