@@ -15,6 +15,7 @@ ADD entrypoint.sh entrypoint.sh
 # Create necessary directories
 RUN mkdir -p /root/Pictures/wedding /root/Database
 ENV SLIDESHOW_IMG_DIR=/root/Pictures/wedding
+COPY qrcode.jpg /root/Pictures/wedding/_placeholder_.jpg
 
 # Make entrypoint script executable
 RUN chmod +x /root/entrypoint.sh
